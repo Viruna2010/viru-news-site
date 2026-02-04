@@ -1,17 +1,22 @@
-const Parser = require('rss-parser');
-const parser = new Parser();
+const axios = require('axios');
 
 module.exports = async (req, res) => {
     try {
-        // NewsFirst Sinhala News Google RSS Proxy හරහා
-        const url = 'https://news.google.com/rss/search?q=source:newsfirst.lk+when:24h&hl=si&gl=LK&ceid=LK:si';
+        const apiKey = 'pub_040b167098dc4ec797c94c3a60806ce8';
+        // NewsData.io API එක හරහා ලංකාවේ සිංහල නිවුස් ලබා ගැනීම
+        const url = `https://newsdata.io/api/1/news?apikey=${apiKey}&country=lk&language=si`;
         
-        const feed = await parser.parseURL(url);
-        
-        // පුවත් සිරස්තල 10ක් ගැනීම
-        const newsItems = feed.items.map(item => {
-            return item.title.split(' - ')[0].trim();
-        }).slice(0, 10);
+        const response = await axios.get(url);
+        let newsItems = [];
+
+        if (response.data && response.data.results) {
+            newsItems = response.data.results.map(n => n.title).slice(0, 10);
+        }
+
+        // පුවත් නැති වුණොත් පෙන්වන Backup පණිවිඩ
+        if (newsItems.length === 0) {
+            newsItems = ["අලුත්ම පුවත් දැන් ලැබෙමින් පවතී...", "විරු TV සමග දිගටම රැඳී සිටින්න..."];
+        }
 
         const html = `
         <!DOCTYPE html>
@@ -32,15 +37,15 @@ module.exports = async (req, res) => {
                 .news-item { font-size: 42px; line-height: 1.6; display: none; text-shadow: 3px 3px 12px black; animation: zoomIn 0.8s; }
                 .active { display: block; }
                 @keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-                .footer { position: absolute; bottom: 30px; font-size: 20px; color: #ffcc00; }
+                .footer { position: absolute; bottom: 30px; font-size: 20px; color: #aaa; }
             </style>
         </head>
         <body>
-            <div class="header">VIRU TV NEWS</div>
+            <div class="header">VIRU TV LIVE NEWS</div>
             <div class="news-box">
-                ${newsItems.length > 0 ? newsItems.map((n, i) => `<div class="news-item ${i === 0 ? 'active' : ''}">${n}</div>`).join('') : '<div class="news-item active">පුවත් පද්ධතිය හා සම්බන්ධ වෙමින්...</div>'}
+                ${newsItems.map((n, i) => `<div class="news-item ${i === 0 ? 'active' : ''}">${n}</div>`).join('')}
             </div>
-            <div class="footer">📡 සිරස පුවත් ඇසුරින් | VIRU TV LIVE</div>
+            <div class="footer">📡 Viru TV | Sri Lanka's Automated News System</div>
             
             <audio id="bgMusic" loop autoplay>
                 <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3" type="audio/mp3">
@@ -50,13 +55,13 @@ module.exports = async (req, res) => {
                 window.onclick = () => document.getElementById('bgMusic').play();
                 const items = document.querySelectorAll('.news-item');
                 let curr = 0;
-                if(items.length > 0) {
-                    setInterval(() => {
+                setInterval(() => {
+                    if(items.length > 0) {
                         items[curr].classList.remove('active');
                         curr = (curr + 1) % items.length;
                         items[curr].classList.add('active');
-                    }, 8000);
-                }
+                    }
+                }, 8000);
             </script>
         </body>
         </html>
@@ -65,6 +70,6 @@ module.exports = async (req, res) => {
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.send(html);
     } catch (e) {
-        res.status(500).send("Viru TV System Error: " + e.message);
+        res.status(500).send("API Error: " + (e.response ? e.response.data.message : e.message));
     }
 };
