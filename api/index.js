@@ -2,7 +2,6 @@ const axios = require('axios');
 
 module.exports = async (req, res) => {
     try {
-        // උඹ එවපු නිවැරදි API එක
         const apiUrl = 'https://esena-news-api-v3.vercel.app/news/trending';
 
         const html = `
@@ -18,46 +17,66 @@ module.exports = async (req, res) => {
                     font-family: 'Noto Sans Sinhala', sans-serif;
                     height: 100vh; display: flex; flex-direction: column;
                     justify-content: center; align-items: center; overflow: hidden;
+                    background-image: linear-gradient(to bottom, #001f3f, #000);
                 }
 
                 .header { 
                     font-size: 45px; color: #ffcc00; margin-bottom: 20px;
                     border-bottom: 5px solid #e60000; padding-bottom: 10px;
+                    text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
                 }
 
                 .news-box { 
-                    width: 85%; height: 350px; background: rgba(255,255,255,0.1);
+                    width: 85%; height: 350px; background: rgba(0,0,0,0.6);
+                    border: 2px solid #e60000;
                     border-radius: 20px; display: flex; align-items: center;
                     justify-content: center; padding: 40px; text-align: center;
+                    box-shadow: 0 0 30px rgba(230, 0, 0, 0.2);
                 }
 
                 .news-item { 
                     font-size: 35px; line-height: 1.4;
-                    animation: fadeIn 1s ease-in;
+                    animation: slideIn 0.8s ease-out;
                 }
 
-                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-                .footer { margin-top: 30px; font-size: 20px; color: #aaa; }
+                .footer { margin-top: 30px; font-size: 20px; color: #ffcc00; font-weight: bold; }
             </style>
         </head>
-        <body>
+        <body onclick="playAudio()">
             <div class="header">VIRU TV NEWS UPDATE</div>
             <div class="news-box" id="news-container">
                 <div class="news-item">පුවත් පද්ධතිය හා සම්බන්ධ වෙමින්...</div>
             </div>
-            <div class="footer">SOURCE: HELAKURU ESANA | VIRU TV LIVE</div>
+            <div class="footer">📡 SOURCE: HELAKURU ESANA | VIRU TV LIVE</div>
+
+            <audio id="newsMusic" loop>
+                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
+            </audio>
 
             <script>
                 let newsList = [];
                 let currentIndex = 0;
+                const audio = document.getElementById('newsMusic');
+
+                // Browser එකේ බ්ලොක් එක මග හරින්න ක්ලික් එකක් ගමු
+                function playAudio() {
+                    audio.play();
+                }
+
+                // ඔටෝම ප්ලේ කරන්නත් ට්‍රයි එකක් දෙමු
+                window.onload = () => {
+                    audio.volume = 0.5;
+                    audio.play().catch(() => {
+                        console.log("Browser blocked autoplay. Click anywhere to play sound.");
+                    });
+                };
 
                 async function fetchNews() {
                     try {
                         const response = await fetch('${apiUrl}');
                         const result = await response.json();
-                        
-                        // උඹ එවපු JSON එකට අනුව මෙන්න මෙතනයි දත්ත තියෙන්නේ
                         if (result.news_data && result.news_data.data) {
                             newsList = result.news_data.data.map(n => n.titleSi);
                             return true;
@@ -78,14 +97,14 @@ module.exports = async (req, res) => {
                     const ok = await fetchNews();
                     if (ok) {
                         showNextNews();
-                        setInterval(showNextNews, 10000); // තත්පර 10න් 10ට නිවුස් මාරු වේ
+                        setInterval(showNextNews, 10000);
                     } else {
                         setTimeout(start, 5000);
                     }
                 }
 
                 start();
-                setInterval(fetchNews, 300000); // විනාඩි 5කට වරක් අලුත් නිවුස් ගනී
+                setInterval(fetchNews, 300000);
             </script>
         </body>
         </html>
