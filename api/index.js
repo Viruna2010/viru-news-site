@@ -17,63 +17,81 @@ module.exports = async (req, res) => {
                     font-family: 'Noto Sans Sinhala', sans-serif;
                     height: 100vh; display: flex; flex-direction: column;
                     justify-content: flex-end; align-items: center; overflow: hidden;
-                    background: radial-gradient(circle, #001a33 0%, #000 100%);
+                    background: linear-gradient(0deg, #001220 0%, #000 50%);
                 }
 
-                .news-container {
-                    width: 100%;
-                    background: rgba(0, 0, 0, 0.85);
-                    border-top: 5px solid #e60000;
-                    padding: 40px 20px;
+                /* News Display Area */
+                .news-window {
+                    width: 95%; height: 50vh;
+                    background: rgba(0, 0, 0, 0.7);
+                    border-radius: 20px 20px 0 0;
+                    border: 3px solid #e60000;
+                    border-bottom: none;
+                    position: relative;
+                    padding: 30px;
                     box-sizing: border-box;
-                    min-height: 40%;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    box-shadow: 0 -20px 50px rgba(0,0,0,0.5);
+                    overflow: hidden;
                 }
 
-                .headline { 
-                    font-size: 50px; color: #ffcc00; margin-bottom: 15px;
-                    text-align: center; font-weight: 900;
-                    text-transform: uppercase;
-                    border-bottom: 2px solid rgba(255, 204, 0, 0.3);
+                .headline-box {
+                    color: #ffcc00; font-size: 45px;
+                    font-weight: 900; text-align: center;
+                    margin-bottom: 20px; text-shadow: 2px 2px 10px rgba(0,0,0,1);
                 }
 
-                .full-news { 
-                    font-size: 30px; line-height: 1.6;
-                    color: #ffffff; text-align: center;
-                    max-width: 90%;
-                    animation: fadeIn 1.2s ease-in-out;
+                /* Scrolling Animation */
+                .scroll-container {
+                    position: relative;
+                    height: 250px; /* විස්තරය පෙනෙන උස */
+                    overflow: hidden;
                 }
 
-                @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-                .live-tag {
-                    position: absolute; top: 40px; left: 40px;
-                    background: #e60000; padding: 10px 25px;
-                    font-size: 25px; font-weight: bold; border-radius: 5px;
-                    animation: blink 1s infinite;
-                }
-
-                @keyframes blink { 50% { opacity: 0.5; } }
-
-                .footer-bar {
-                    width: 100%; background: #ffcc00; color: #000;
-                    padding: 10px; font-size: 22px; font-weight: bold;
+                .content-scroll {
+                    position: absolute;
+                    width: 100%;
+                    font-size: 32px;
+                    line-height: 1.6;
                     text-align: center;
+                    animation: smoothScroll 20s linear infinite; /* වේගය මෙතනින් වෙනස් කරන්න */
+                }
+
+                @keyframes smoothScroll {
+                    0% { transform: translateY(100%); }
+                    100% { transform: translateY(-120%); }
+                }
+
+                .live-indicator {
+                    position: absolute; top: 30px; right: 40px;
+                    display: flex; align-items: center; gap: 10px;
+                }
+
+                .dot { width: 15px; height: 15px; background: red; border-radius: 50%; animation: blink 1s infinite; }
+                @keyframes blink { 50% { opacity: 0; } }
+
+                .footer-ticker {
+                    width: 100%; background: #e60000; color: white;
+                    padding: 15px; font-size: 24px; font-weight: bold;
+                    text-align: center; box-shadow: 0 -10px 30px rgba(230,0,0,0.3);
                 }
             </style>
         </head>
-        <body onclick="playAudio()">
-            <div class="live-tag">🔴 LIVE</div>
+        <body onclick="document.getElementById('newsMusic').play()">
             
-            <div class="news-container" id="display-box">
-                <div class="headline">පද්ධතිය සූදානම් වෙමින් පවතී...</div>
+            <div class="live-indicator">
+                <div class="dot"></div>
+                <span style="font-weight: bold; font-size: 20px;">SIRIUS LIVE</span>
             </div>
 
-            <div class="footer-bar">📡 VIRU TV NEWS | HELAKURU ESANA වෙතින් පුවත් සජීවීව</div>
+            <div class="news-window" id="news-window">
+                <div class="headline-box" id="title-display">පද්ධතිය සූදානම් වෙමින් පවතී...</div>
+                <div class="scroll-container">
+                    <div class="content-scroll" id="content-display">
+                        මඳක් රැඳී සිටින්න, අලුත්ම පුවත් දැන් ලැබෙනු ඇත.
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-ticker">📡 VIRU TV NEWS UPDATES | HELAKURU ESANA</div>
 
             <audio id="newsMusic" loop>
                 <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
@@ -82,22 +100,18 @@ module.exports = async (req, res) => {
             <script>
                 let newsData = [];
                 let currentIndex = 0;
-                const audio = document.getElementById('newsMusic');
-
-                function playAudio() { audio.play(); }
 
                 async function fetchNews() {
                     try {
                         const response = await fetch('${apiUrl}');
                         const result = await response.json();
                         if (result.news_data && result.news_data.data) {
-                            // මෙතනදී අපි Title එකයි Full Content එකයි දෙකම ගන්නවා
                             newsData = result.news_data.data.map(n => {
-                                let fullBody = n.contentSi
-                                    .filter(c => c.type === 'text') // රූප නැතුව අකුරු විතරක් ගන්නවා
-                                    .map(c => c.data.replace(/<[^>]*>?/gm, '')) // HTML tags අයින් කරනවා
+                                let bodyText = n.contentSi
+                                    .filter(c => c.type === 'text')
+                                    .map(c => c.data.replace(/<[^>]*>?/gm, ''))
                                     .join(' ');
-                                return { title: n.titleSi, body: fullBody };
+                                return { title: n.titleSi, body: bodyText };
                             });
                             return true;
                         }
@@ -107,30 +121,34 @@ module.exports = async (req, res) => {
 
                 function rotateNews() {
                     if (newsData.length > 0) {
-                        const box = document.getElementById('display-box');
+                        const titleBox = document.getElementById('title-display');
+                        const contentBox = document.getElementById('content-display');
                         const item = newsData[currentIndex];
                         
-                        box.innerHTML = \`
-                            <div class="headline">\${item.title}</div>
-                            <div class="full-news">\${item.body.substring(0, 450)}...</div>
-                        \`;
+                        titleBox.innerText = item.title;
+                        contentBox.innerText = item.body;
                         
+                        // Animation එක Reset කරනවා අලුත් නිවුස් එකට
+                        contentBox.style.animation = 'none';
+                        contentBox.offsetHeight; /* Trigger reflow */
+                        contentBox.style.animation = 'smoothScroll 20s linear infinite';
+
                         currentIndex = (currentIndex + 1) % newsData.length;
                     }
                 }
 
-                async function init() {
+                async function start() {
                     const ok = await fetchNews();
                     if (ok) {
                         rotateNews();
-                        setInterval(rotateNews, 15000); // විස්තරය කියවන්න තත්පර 15ක් දෙනවා
+                        setInterval(rotateNews, 20000); // තත්පර 20න් 20ට නිවුස් මාරු වේ
                     } else {
-                        setTimeout(init, 5000);
+                        setTimeout(start, 5000);
                     }
                 }
 
-                init();
-                setInterval(fetchNews, 600000); // විනාඩි 10කින් Update වේ
+                start();
+                setInterval(fetchNews, 600000);
             </script>
         </body>
         </html>
