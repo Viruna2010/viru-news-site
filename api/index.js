@@ -2,11 +2,8 @@ const axios = require('axios');
 
 module.exports = async (req, res) => {
     try {
-        // ඔයාගේ නිවැරදිම RapidAPI දත්ත මෙන්න
-        const apiKey = 'a520962615msh0e8d76bf27630eep1fe183jsn3f52ccadb3ff';
-        const apiHost = 'sri-lanka-news-api.p.rapidapi.com';
-        // අපි පුවත් 10ක් එකපාර ගමු (data/10)
-        const apiUrl = 'https://sri-lanka-news-api.p.rapidapi.com/news/sinhala/Ada.lk/data/10';
+        // හෙළකුරු ඇසණ Unofficial API එක
+        const apiUrl = 'https://esena-news-api-v3.vercel.app/news/trending';
 
         const html = `
         <!DOCTYPE html>
@@ -21,57 +18,61 @@ module.exports = async (req, res) => {
                 body { 
                     margin: 0; padding: 0; 
                     background: #000;
-                    background-image: radial-gradient(circle, #001f3f, #000);
+                    background-image: radial-gradient(circle, #080808, #000);
                     font-family: 'Noto Sans Sinhala', sans-serif;
                     height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
                     color: white; overflow: hidden;
                 }
 
                 .header { 
-                    font-size: 55px; color: #ffcc00; 
-                    border-bottom: 8px solid #e60000; 
+                    font-size: 50px; color: #ffcc00; 
+                    border-left: 15px solid #e60000; 
+                    padding-left: 20px;
                     margin-bottom: 30px; 
-                    text-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
+                    text-shadow: 0 0 20px rgba(255, 204, 0, 0.4);
                     font-weight: 900;
+                    letter-spacing: 2px;
                 }
 
                 .news-box { 
-                    width: 90%; height: 450px; 
+                    width: 90%; height: 400px; 
                     text-align: center; 
                     display: flex; align-items: center; justify-content: center; 
-                    background: rgba(0, 0, 0, 0.4); 
-                    border-radius: 25px; 
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    padding: 40px; box-sizing: border-box;
+                    background: rgba(255, 255, 255, 0.05); 
+                    border-radius: 30px; 
+                    border: 2px solid rgba(255, 255, 255, 0.1);
+                    padding: 50px; box-sizing: border-box;
+                    box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
                 }
 
                 .news-item { 
-                    font-size: 38px; line-height: 1.6; 
-                    text-shadow: 3px 3px 12px black; 
-                    animation: zoomIn 0.8s ease-out; 
+                    font-size: 42px; line-height: 1.5; 
+                    text-shadow: 2px 2px 10px rgba(0,0,0,1); 
+                    animation: slideUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; 
                 }
 
-                @keyframes zoomIn { 
-                    from { opacity: 0; transform: scale(0.95); } 
-                    to { opacity: 1; transform: scale(1); } 
+                @keyframes slideUp { 
+                    0% { opacity: 0; transform: translateY(30px); } 
+                    100% { opacity: 1; transform: translateY(0); } 
                 }
 
                 .footer { 
-                    position: absolute; bottom: 30px; 
-                    font-size: 22px; color: #ffcc00; 
-                    background: rgba(230, 0, 0, 0.2); 
-                    padding: 10px 30px; border-radius: 50px;
+                    position: absolute; bottom: 40px; 
+                    font-size: 24px; color: #fff; 
+                    background: #e60000; 
+                    padding: 8px 40px; border-radius: 5px;
+                    font-weight: bold;
                 }
             </style>
         </head>
         <body>
-            <div class="header">VIRU TV NEWS UPDATE</div>
+            <div class="header">VIRU TV NEWS FLASH</div>
             
             <div class="news-box" id="news-container">
-                <div class="news-item">පුවත් පද්ධතිය හා සම්බන්ධ වෙමින්...</div>
+                <div class="news-item">නවතම පුවත් පද්ධතියට එක්වෙමින් පවතී...</div>
             </div>
 
-            <div class="footer">📡 ADA.LK ඇසුරින් | VIRU TV LIVE</div>
+            <div class="footer">📡 ESENA NEWS | VIRU TV LIVE UPDATE</div>
             
             <audio id="bgMusic" loop autoplay>
                 <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3" type="audio/mp3">
@@ -84,26 +85,17 @@ module.exports = async (req, res) => {
 
                 async function fetchNews() {
                     try {
-                        const response = await fetch('${apiUrl}', {
-                            method: 'GET',
-                            headers: {
-                                'x-rapidapi-key': '${apiKey}',
-                                'x-rapidapi-host': '${apiHost}'
-                            }
-                        });
-                        const data = await response.json();
+                        // අපිට RapidAPI Keys දැන් ඕන වෙන්නේ නැහැ
+                        const response = await fetch('${apiUrl}');
+                        const result = await response.json();
                         
-                        if (Array.isArray(data) && data.length > 0) {
-                            newsList = data.map(n => {
-                                let title = n.title || "";
-                                let desc = n.description || "";
-                                // Title එක සහ Description එක අතර පරතරයක් තබයි
-                                return title + (desc ? " - " + desc : "");
-                            });
+                        // ඇසණ API එකේ දත්ත තියෙන්නේ result.news ඇතුලේ
+                        if (result.status && result.news.length > 0) {
+                            newsList = result.news.map(n => n.title);
                             return true;
                         }
                     } catch (error) {
-                        console.error("API Error:", error);
+                        console.error("News Fetch Error:", error);
                     }
                     return false;
                 }
@@ -123,15 +115,14 @@ module.exports = async (req, res) => {
                     const success = await fetchNews();
                     if (success) {
                         rotateNews();
-                        setInterval(rotateNews, 12000); // තත්පර 12න් 12ට මාරු වේ
+                        setInterval(rotateNews, 10000); // තත්පර 10කින් නිවුස් මාරු වේ
                     } else {
-                        container.innerHTML = '<div class="news-item">දත්ත ලබාගැනීම අසාර්ථකයි. නැවත උත්සාහ කරයි...</div>';
                         setTimeout(startSystem, 5000);
                     }
                 }
 
                 startSystem();
-                setInterval(fetchNews, 300000); // විනාඩි 5කට වරක් පසුබිමින් Update වේ
+                setInterval(fetchNews, 600000); // විනාඩි 10කට වරක් අලුත්ම නිවුස් ගනී
 
                 window.onclick = () => document.getElementById('bgMusic').play();
             </script>
@@ -142,6 +133,6 @@ module.exports = async (req, res) => {
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.send(html);
     } catch (e) {
-        res.status(500).send("Server Error: " + e.message);
+        res.status(500).send("Error: " + e.message);
     }
 };
