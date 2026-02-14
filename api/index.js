@@ -9,6 +9,8 @@ module.exports = async (req, res) => {
         <html lang="si">
         <head>
             <meta charset="UTF-8">
+            <meta name="robots" content="noindex, nofollow">
+            <title>VIRU TV | Live News</title>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;700;900&display=swap');
                 
@@ -17,66 +19,67 @@ module.exports = async (req, res) => {
                     font-family: 'Noto Sans Sinhala', sans-serif;
                     height: 100vh; display: flex; flex-direction: column;
                     align-items: center; justify-content: center; overflow: hidden;
-                    background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
                 }
 
-                /* Logo Section - Top */
-                .top-logo {
-                    position: absolute; top: 40px; text-align: center;
+                /* Background Effect - Risk 0 කරද්දී Branding වෙනස් කරනවා */
+                .bg-overlay {
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background: linear-gradient(135deg, #0f0f0f 0%, #1a0000 100%);
+                    z-index: -1;
                 }
 
-                .viru-logo {
-                    font-size: 55px; font-weight: 900; color: #ffcc00;
-                    letter-spacing: 5px; text-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
+                /* Top Header */
+                .header {
+                    position: absolute; top: 50px; text-align: center;
+                }
+                .viru-logo { 
+                    font-size: 60px; font-weight: 900; color: #ffcc00;
+                    letter-spacing: 8px; text-shadow: 3px 3px 10px rgba(0,0,0,1);
+                }
+                .live-tag {
+                    background: #ff0000; color: white; padding: 5px 15px;
+                    font-size: 18px; font-weight: bold; border-radius: 5px;
+                    display: inline-block; margin-top: 10px; animation: blink 1s infinite;
                 }
 
-                /* Main Center News Card */
-                .news-card {
-                    width: 85%; max-width: 1000px; height: auto;
-                    min-height: 400px; background: rgba(20, 20, 20, 0.9);
-                    border: 2px solid #e60000; border-radius: 20px;
-                    padding: 50px; box-sizing: border-box;
-                    box-shadow: 0 0 50px rgba(230, 0, 0, 0.3);
-                    display: flex; flex-direction: column;
+                /* News Display - Title Only (Risk Reduction) */
+                .news-container {
+                    width: 90%; max-width: 1100px;
+                    text-align: center; padding: 40px;
+                    border-bottom: 5px solid #ffcc00;
                 }
 
                 .headline { 
-                    font-size: 42px; color: #ffcc00; font-weight: 700;
-                    margin-bottom: 25px; line-height: 1.3;
-                    border-left: 10px solid #e60000; padding-left: 20px;
+                    font-size: 55px; color: white; font-weight: 700;
+                    line-height: 1.4; text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+                    animation: slideUp 0.5s ease-out;
                 }
 
-                .body-text { 
-                    font-size: 26px; line-height: 1.7; color: #f0f0f0;
-                    text-align: left; font-weight: 400;
-                    animation: fadeIn 0.8s ease-in-out;
-                }
+                @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+                @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-                /* Bottom Info Bar */
-                .info-bar {
-                    position: absolute; bottom: 50px;
-                    background: #e60000; padding: 10px 30px;
-                    border-radius: 50px; font-weight: bold; font-size: 20px;
+                /* Footer Bar */
+                .footer {
+                    position: absolute; bottom: 0; width: 100%;
+                    background: #ffcc00; color: #000;
+                    padding: 15px 0; font-weight: 900; font-size: 22px;
+                    text-align: center; letter-spacing: 2px;
                 }
             </style>
         </head>
         <body onclick="document.getElementById('newsMusic').play()">
+            <div class="bg-overlay"></div>
             
-            <div class="top-logo">
-                <span class="viru-logo">VIRU TV</span>
-                <div style="color: #e60000; font-weight: bold; letter-spacing: 5px; margin-top: 5px;">🔴 සජීවී පුවත් විකාශය</div>
+            <div class="header">
+                <div class="viru-logo">VIRU TV</div>
+                <div class="live-tag">LIVE NEWS</div>
             </div>
 
-            <div class="news-card">
-                <div class="headline" id="title-display">සම්බන්ධ වෙමින් පවතී...</div>
-                <div class="body-text" id="content-display">
-                    කරුණාකර මඳක් රැඳී සිටින්න. අලුත්ම පුවත් දැන් ලැබෙනු ඇත.
-                </div>
+            <div class="news-container">
+                <div class="headline" id="title-display">ප්‍රවෘත්ති පූරණය වෙමින් පවතී...</div>
             </div>
 
-            <div class="info-bar">📡 SOURCE: ESANA NEWS | 24/7 LIVE</div>
+            <div class="footer">24/7 AUTOMATED INFORMATION SERVICE</div>
 
             <audio id="newsMusic" loop>
                 <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
@@ -88,15 +91,13 @@ module.exports = async (req, res) => {
 
                 async function fetchNews() {
                     try {
-                        const response = await fetch('${apiUrl}');
+                        // Original Source එක පටලවන්න තමයි මෙතනින් Fetch කරන්නේ
+                        const response = await fetch('/api/data'); 
                         const result = await response.json();
                         if (result.news_data && result.news_data.data) {
+                            // Risk Reduction: Title එකේ තියෙන අයිතිකාර නාමයන් (Esana/Helakuru) අයින් කරනවා
                             newsData = result.news_data.data.map(n => {
-                                let bodyText = n.contentSi
-                                    .filter(c => c.type === 'text')
-                                    .map(c => c.data.replace(/<[^>]*>?/gm, ''))
-                                    .join(' ');
-                                return { title: n.titleSi, body: bodyText };
+                                return n.titleSi.replace("Esana", "").replace("EsanaNews", "").replace("හෙළකුරු", "").trim();
                             });
                             return true;
                         }
@@ -107,16 +108,13 @@ module.exports = async (req, res) => {
                 function updateDisplay() {
                     if (newsData.length > 0) {
                         const titleEl = document.getElementById('title-display');
-                        const contentEl = document.getElementById('content-display');
+                        titleEl.style.opacity = 0; // Transition effect
                         
-                        const item = newsData[currentIndex];
-                        titleEl.innerText = item.title;
-                        
-                        // අකුරු ගොඩක් වැඩි වුණොත් කොටුව ඇතුළේ පාලනය කරනවා
-                        let cleanBody = item.body.split('ශ්‍රී ලංකාවේ ජනප්‍රියම Payment Method')[0]; // වෙළඳ දැන්වීම් අයින් කරනවා
-                        contentEl.innerText = cleanBody.length > 550 ? cleanBody.substring(0, 550) + "..." : cleanBody;
-
-                        currentIndex = (currentIndex + 1) % newsData.length;
+                        setTimeout(() => {
+                            titleEl.innerText = newsData[currentIndex];
+                            titleEl.style.opacity = 1;
+                            currentIndex = (currentIndex + 1) % newsData.length;
+                        }, 500);
                     }
                 }
 
@@ -124,14 +122,14 @@ module.exports = async (req, res) => {
                     const ok = await fetchNews();
                     if (ok) {
                         updateDisplay();
-                        setInterval(updateDisplay, 15000); 
+                        setInterval(updateDisplay, 8000); // තත්පර 8න් 8ට මාරු වෙනවා
                     } else {
                         setTimeout(init, 5000);
                     }
                 }
 
                 init();
-                setInterval(fetchNews, 600000);
+                setInterval(fetchNews, 600000); // විනාඩි 10න් 10ට Background එකේ Fetch වෙනවා
             </script>
         </body>
         </html>
