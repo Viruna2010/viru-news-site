@@ -22,11 +22,11 @@ module.exports = async (req, res) => {
 
                 .bg-overlay {
                     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                    background: linear-gradient(180deg, #0d0d0d 0%, #000 100%);
+                    background: radial-gradient(circle at 50% 50%, #1a0000 0%, #000 100%);
                     z-index: -1;
                 }
 
-                /* Header */
+                /* Header Area */
                 .header { position: absolute; top: 40px; text-align: center; }
                 .viru-logo { 
                     font-size: 70px; font-weight: 900; color: #fff;
@@ -42,16 +42,22 @@ module.exports = async (req, res) => {
 
                 /* News Box */
                 .news-box {
-                    width: 90%; max-width: 1200px; text-align: center;
-                    padding: 60px; border-left: 10px solid #e60000;
+                    width: 90%; max-width: 1250px; text-align: center;
+                    padding: 80px 40px; border-left: 12px solid #e60000;
                     background: rgba(255, 255, 255, 0.02);
-                    border-radius: 0 30px 30px 0; box-shadow: -10px 0 30px rgba(230, 0, 0, 0.1);
+                    border-radius: 0 30px 30px 0; box-shadow: -15px 0 35px rgba(230, 0, 0, 0.1);
                 }
 
                 .headline { 
-                    font-size: 55px; color: #ffcc00; font-weight: 900;
+                    font-size: 58px; color: #ffcc00; font-weight: 900;
                     line-height: 1.4; transition: opacity 0.8s ease;
-                    text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+                }
+
+                /* Fake News ආරක්ෂණ Disclaimer එක */
+                .legal-notice {
+                    position: absolute; bottom: 85px; width: 80%;
+                    font-size: 13px; color: #888; text-align: center;
+                    font-weight: bold; font-style: italic; opacity: 0.6;
                 }
 
                 /* Footer */
@@ -65,16 +71,21 @@ module.exports = async (req, res) => {
         </head>
         <body onclick="document.getElementById('newsMusic').play()">
             <div class="bg-overlay"></div>
+            
             <div class="header">
                 <div class="viru-logo">VIRU TV</div>
                 <div class="live-indicator"><div class="dot"></div> LIVE UPDATES</div>
             </div>
 
             <div class="news-box">
-                <div class="headline" id="title-display">සම්බන්ධ වෙමින් පවතී...</div>
+                <div class="headline" id="title-display">පද්ධතිය සක්‍රිය වෙමින් පවතී...</div>
             </div>
 
-            <div class="footer">STAY TUNED WITH VIRU TV | AUTOMATED INFO SERVICE</div>
+            <div class="legal-notice">
+                * මෙහි පළවන තොරතුරු අන්තර්ජාලයෙන් ස්වයංක්‍රීයව උපුටා ගන්නා අතර එහි සත්‍ය අසත්‍යතාවය පිළිබඳ VIRU TV වගකීමක් දරනු නොලැබේ.
+            </div>
+
+            <div class="footer">VIRU TV | 24/7 AUTOMATED INFORMATION SERVICE</div>
 
             <audio id="newsMusic" loop>
                 <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
@@ -90,8 +101,8 @@ module.exports = async (req, res) => {
                         const result = await response.json();
                         if (result.news_data && result.news_data.data) {
                             newsData = result.news_data.data.map(n => {
-                                // මෙතනදී තමයි රිස්ක් එක නැති කරන්නේ
-                                return n.titleSi.replace(/Esana|හෙළකුරු|Ada Derana/gi, "").trim();
+                                let clean = n.titleSi.replace(/Esana|හෙළකුරු|Ada Derana|NewsFirst/gi, "").trim();
+                                return clean.split('').join('\\u200B');
                             });
                             return true;
                         }
@@ -103,7 +114,6 @@ module.exports = async (req, res) => {
                     if (newsData.length > 0) {
                         const titleEl = document.getElementById('title-display');
                         titleEl.style.opacity = 0;
-                        
                         setTimeout(() => {
                             titleEl.innerText = newsData[currentIndex];
                             titleEl.style.opacity = 1;
@@ -116,14 +126,14 @@ module.exports = async (req, res) => {
                     const ok = await fetchNews();
                     if (ok) {
                         updateDisplay();
-                        setInterval(updateDisplay, 8000); // 8 Seconds
+                        setInterval(updateDisplay, 8500);
                     } else {
                         setTimeout(init, 5000);
                     }
                 }
 
                 init();
-                setInterval(fetchNews, 300000); // විනාඩි 5න් 5ට අලුත් පුවත් බලනවා
+                setInterval(fetchNews, 600000); 
             </script>
         </body>
         </html>
@@ -132,6 +142,6 @@ module.exports = async (req, res) => {
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.send(html);
     } catch (e) {
-        res.status(500).send("System Securely Stopped.");
+        res.status(500).send("Security Applied.");
     }
 };
