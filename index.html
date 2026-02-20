@@ -2,7 +2,7 @@
 <html lang="si">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow, noarchive">
     <title>VIRU TV | News Engine</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;700;900&family=Orbitron:wght@700&display=swap');
@@ -16,13 +16,15 @@
             align-items: center; justify-content: center; overflow: hidden;
         }
 
+        /* Particles Background */
         #particles-js { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
 
+        /* Header Style */
         .header { position: absolute; top: 40px; text-align: center; z-index: 10; }
         
         .viru-logo { 
             font-family: 'Orbitron', sans-serif;
-            font-size: clamp(40px, 8vw, 70px); font-weight: 700; color: var(--neon-blue);
+            font-size: 70px; font-weight: 700; color: var(--neon-blue);
             letter-spacing: 10px; text-transform: uppercase;
             text-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
         }
@@ -37,47 +39,51 @@
         .dot { width: 8px; height: 8px; background: var(--neon-blue); border-radius: 50%; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(1.2); } }
 
+        /* News Display - Glassmorphism */
         .news-container {
-            width: 90%; max-width: 1100px; text-align: center;
-            padding: 60px 20px; z-index: 5;
-            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(15px);
+            width: 85%; max-width: 1200px; text-align: center;
+            padding: 60px 40px; z-index: 5;
+            background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px);
             border: 1px solid rgba(0, 210, 255, 0.2); border-radius: 2rem;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
         }
 
         .headline { 
-            font-size: clamp(24px, 5vw, 48px); color: #fff; font-weight: 700;
-            line-height: 1.4; transition: opacity 0.8s ease-in-out;
-            text-shadow: 0 2px 15px rgba(0,0,0,1);
+            font-size: 52px; color: #fff; font-weight: 800;
+            line-height: 1.5; transition: opacity 0.8s ease-in-out;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
+        /* Footer */
         .footer {
             position: absolute; bottom: 0; width: 100%;
-            background: rgba(15, 23, 42, 0.95); padding: 15px 0;
+            background: rgba(15, 23, 42, 0.9); padding: 20px 0;
             font-family: 'Orbitron', sans-serif;
-            color: var(--neon-blue); font-size: 12px; text-align: center;
-            letter-spacing: 3px; border-top: 1px solid rgba(0, 210, 255, 0.2);
+            color: var(--neon-blue); font-size: 14px; text-align: center;
+            letter-spacing: 5px; border-top: 1px solid rgba(0, 210, 255, 0.2);
         }
 
-        #audio-hint {
-            position: fixed; bottom: 100px; background: var(--neon-blue);
-            color: black; padding: 10px 20px; border-radius: 5px;
-            font-weight: bold; cursor: pointer; z-index: 20;
+        .legal {
+            position: absolute; bottom: 85px; width: 80%;
+            font-size: 11px; color: #475569; text-align: center; font-weight: bold;
         }
     </style>
 </head>
-<body onclick="startAudio()">
+<body onclick="document.getElementById('newsMusic').play()">
     
     <div id="particles-js"></div>
-    <div id="audio-hint">සංගීතය සඳහා Click කරන්න 🎵</div>
 
     <div class="header">
         <div class="viru-logo">VIRU TV</div>
-        <div class="live-tag"><div class="dot"></div> DIGITAL NEWS ENGINE</div>
+        <div class="live-tag"><div class="dot"></div> Digital News Engine</div>
     </div>
 
     <div class="news-container">
-        <div class="headline" id="title-display">පුවත් පද්ධතිය පණගැන්වෙමින් පවතී...</div>
+        <div class="headline" id="title-display">System Initializing...</div>
+    </div>
+
+    <div class="legal">
+        * ස්වයංක්‍රීයව උපුටා ගන්නා පුවත් මෙහි පළවන අතර එහි නිරවද්‍යතාවය පිළිබඳ වගකීමක් දරනු නොලැබේ.
     </div>
 
     <div class="footer">VIRU TV | 24/7 AUTOMATED NEWS SERVICE</div>
@@ -88,27 +94,24 @@
 
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
-        particlesJS("particles-js", { "particles": { "number": { "value": 80 }, "color": { "value": "#00d2ff" }, "line_linked": { "enable": true, "color": "#00d2ff", "opacity": 0.2 }, "move": { "enable": true, "speed": 1 } } });
+        particlesJS("particles-js", { "particles": { "number": { "value": 60, "density": { "enable": true, "value_area": 800 } }, "color": { "value": "#00d2ff" }, "opacity": { "value": 0.4 }, "size": { "value": 2 }, "line_linked": { "enable": true, "distance": 150, "color": "#00d2ff", "opacity": 0.1, "width": 1 }, "move": { "enable": true, "speed": 1 } } });
 
         let newsData = [];
         let currentIndex = 0;
+        //apiUrl කෙලින්ම මෙතනට දැම්මා
         const apiUrl = 'https://esena-news-api-v3.vercel.app/news/trending';
-
-        function startAudio() {
-            document.getElementById('newsMusic').play();
-            document.getElementById('audio-hint').style.display = 'none';
-        }
 
         async function fetchNews() {
             try {
-                // සෘජුවම Browser එකෙන් API එකට කතා කරනවා
                 const response = await fetch(apiUrl);
                 const result = await response.json();
                 if (result.news_data && result.news_data.data) {
-                    newsData = result.news_data.data.map(n => n.titleSi.replace(/Esana|හෙළකුරු|Ada Derana/gi, "").trim());
+                    newsData = result.news_data.data.map(n => {
+                        return n.titleSi.replace(/Esana|හෙළකුරු|Ada Derana/gi, "").trim();
+                    });
                     return true;
                 }
-            } catch (e) { console.error("API Down"); }
+            } catch (e) { console.error("Sync Error"); }
             return false;
         }
 
@@ -126,7 +129,7 @@
 
         async function init() {
             const ok = await fetchNews();
-            if (ok && newsData.length > 0) {
+            if (ok) {
                 updateDisplay();
                 setInterval(updateDisplay, 8000); 
             } else {
