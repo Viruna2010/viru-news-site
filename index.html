@@ -2,113 +2,130 @@
 <html lang="si">
 <head>
     <meta charset="UTF-8">
-    <meta name="robots" content="noindex, nofollow, noarchive">
-    <title>VIRU TV | News Engine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIRU TV | Digital News Engine</title>
     <style>
+        /* Google Fonts - Noto Sans Sinhala & Orbitron */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;700;900&family=Orbitron:wght@700&display=swap');
         
-        :root { --neon-blue: #00d2ff; --dark-bg: #020617; }
+        :root { --neon-red: #ff0000; --dark-bg: #050000; }
 
         body { 
             margin: 0; background-color: var(--dark-bg); color: white;
             font-family: 'Noto Sans Sinhala', sans-serif;
             height: 100vh; display: flex; flex-direction: column;
             align-items: center; justify-content: center; overflow: hidden;
+            cursor: pointer;
         }
 
-        /* Particles Background */
         #particles-js { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
 
-        /* Header Style */
+        /* Header UI */
         .header { position: absolute; top: 40px; text-align: center; z-index: 10; }
         
         .viru-logo { 
             font-family: 'Orbitron', sans-serif;
-            font-size: 70px; font-weight: 700; color: var(--neon-blue);
-            letter-spacing: 10px; text-transform: uppercase;
-            text-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
+            font-size: clamp(40px, 8vw, 75px); font-weight: 700; color: var(--neon-red);
+            letter-spacing: 12px; text-transform: uppercase;
+            text-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
         }
 
         .live-tag {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: rgba(0, 210, 255, 0.1); border: 1px solid var(--neon-blue);
-            padding: 5px 15px; border-radius: 50px; margin-top: 10px;
-            font-family: 'Orbitron', sans-serif; font-size: 12px; color: var(--neon-blue);
+            display: inline-flex; align-items: center; gap: 10px;
+            background: rgba(255, 0, 0, 0.15); border: 2px solid var(--neon-red);
+            padding: 8px 20px; border-radius: 4px; margin-top: 15px;
+            font-family: 'Orbitron', sans-serif; font-size: 16px; color: var(--neon-red);
+            font-weight: bold; letter-spacing: 2px;
         }
 
-        .dot { width: 8px; height: 8px; background: var(--neon-blue); border-radius: 50%; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(1.2); } }
+        .dot { width: 12px; height: 12px; background: var(--neon-red); border-radius: 50%; animation: pulse 0.8s infinite; }
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
 
-        /* News Display - Glassmorphism */
+        /* News Display Box */
         .news-container {
-            width: 85%; max-width: 1200px; text-align: center;
-            padding: 60px 40px; z-index: 5;
-            background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 210, 255, 0.2); border-radius: 2rem;
-            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+            width: 88%; max-width: 1250px; text-align: center;
+            padding: 80px 45px; z-index: 5;
+            background: rgba(20, 0, 0, 0.7); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 0, 0, 0.4); border-radius: 15px;
+            box-shadow: 0 0 60px rgba(255, 0, 0, 0.1);
         }
 
         .headline { 
-            font-size: 52px; color: #fff; font-weight: 800;
-            line-height: 1.5; transition: opacity 0.8s ease-in-out;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            font-size: clamp(30px, 6.5vw, 60px); color: #fff; font-weight: 800;
+            line-height: 1.4; transition: opacity 0.8s ease-in-out;
+            text-shadow: 0 5px 20px rgba(0,0,0,1);
         }
 
-        /* Footer */
+        /* Bottom UI */
         .footer {
             position: absolute; bottom: 0; width: 100%;
-            background: rgba(15, 23, 42, 0.9); padding: 20px 0;
+            background: linear-gradient(transparent, rgba(50, 0, 0, 0.9)); padding: 25px 0;
             font-family: 'Orbitron', sans-serif;
-            color: var(--neon-blue); font-size: 14px; text-align: center;
-            letter-spacing: 5px; border-top: 1px solid rgba(0, 210, 255, 0.2);
+            color: var(--neon-red); font-size: 14px; text-align: center;
+            letter-spacing: 6px; border-top: 1px solid var(--neon-red);
         }
 
         .legal {
-            position: absolute; bottom: 85px; width: 80%;
-            font-size: 11px; color: #475569; text-align: center; font-weight: bold;
+            position: absolute; bottom: 95px; width: 85%;
+            font-size: 12px; color: #888; text-align: center; font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        #audio-hint {
+            position: fixed; top: 10px; right: 10px; font-size: 11px; 
+            color: var(--neon-red); opacity: 0.7; font-weight: bold;
         }
     </style>
 </head>
-<body onclick="document.getElementById('newsMusic').play()">
-    
+<body onclick="playEngine()">
+
+    <div id="audio-hint">CLICK ANYWHERE TO ACTIVATE AUDIO 🎧</div>
     <div id="particles-js"></div>
 
     <div class="header">
         <div class="viru-logo">VIRU TV</div>
-        <div class="live-tag"><div class="dot"></div> Digital News Engine</div>
+        <div class="live-tag"><div class="dot"></div> DIGITAL NEWS ENGINE</div>
     </div>
 
     <div class="news-container">
-        <div class="headline" id="title-display">System Initializing...</div>
+        <div class="headline" id="title-display">CONNECTING TO VIRU SERVER...</div>
     </div>
 
     <div class="legal">
-        * ස්වයංක්‍රීයව උපුටා ගන්නා පුවත් මෙහි පළවන අතර එහි නිරවද්‍යතාවය පිළිබඳ වගකීමක් දරනු නොලැබේ.
+        VIRU TV AI SYSTEM | AUTOMATED BROADCAST | EXCLUDING WEATHER UPDATES
     </div>
 
-    <div class="footer">VIRU TV | 24/7 AUTOMATED NEWS SERVICE</div>
+    <div class="footer">VIRU TV | THE FUTURE OF DIGITAL NEWS</div>
 
-    <audio id="newsMusic" loop>
+    <audio id="newsMusic" loop preload="auto">
         <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
     </audio>
 
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
-        particlesJS("particles-js", { "particles": { "number": { "value": 60, "density": { "enable": true, "value_area": 800 } }, "color": { "value": "#00d2ff" }, "opacity": { "value": 0.4 }, "size": { "value": 2 }, "line_linked": { "enable": true, "distance": 150, "color": "#00d2ff", "opacity": 0.1, "width": 1 }, "move": { "enable": true, "speed": 1 } } });
+        // RED Particles Animation
+        particlesJS("particles-js", { "particles": { "number": { "value": 90 }, "color": { "value": "#ff0000" }, "shape": { "type": "circle" }, "opacity": { "value": 0.5 }, "size": { "value": 2 }, "line_linked": { "enable": true, "distance": 150, "color": "#ff0000", "opacity": 0.2, "width": 1 }, "move": { "enable": true, "speed": 1.5 } } });
 
         let newsData = [];
         let currentIndex = 0;
-        //apiUrl කෙලින්ම මෙතනට දැම්මා
         const apiUrl = 'https://esena-news-api-v3.vercel.app/news/trending';
+        const music = document.getElementById('newsMusic');
+
+        // පේජ් එකට ගිය ගමන් Click කළාම සින්දුව පටන් ගන්නා Function එක
+        function playEngine() {
+            music.play().catch(e => console.log("Waiting for user interaction..."));
+            document.getElementById('audio-hint').style.display = 'none';
+        }
 
         async function fetchNews() {
             try {
                 const response = await fetch(apiUrl);
                 const result = await response.json();
                 if (result.news_data && result.news_data.data) {
-                    newsData = result.news_data.data.map(n => {
-                        return n.titleSi.replace(/Esana|හෙළකුරු|Ada Derana/gi, "").trim();
-                    });
+                    // Filter: කාලගුණ පුවත් ඉවත් කිරීම
+                    newsData = result.news_data.data
+                        .filter(n => !n.titleSi.includes("කාලගුණ") && !n.titleSi.includes("Weather"))
+                        .map(n => n.titleSi.replace(/Esana|හෙළකුරු|Ada Derana/gi, "").trim());
                     return true;
                 }
             } catch (e) { console.error("Sync Error"); }
@@ -131,14 +148,14 @@
             const ok = await fetchNews();
             if (ok) {
                 updateDisplay();
-                setInterval(updateDisplay, 8000); 
+                setInterval(updateDisplay, 8500); // තත්පර 8.5 කට වරක් පුවත් මාරු වේ
             } else {
                 setTimeout(init, 5000);
             }
         }
 
         init();
-        setInterval(fetchNews, 600000);
+        setInterval(fetchNews, 600000); // විනාඩි 10 කට වරක් අලුත් පුවත් Fetch කරයි
     </script>
 </body>
 </html>
