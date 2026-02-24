@@ -49,15 +49,37 @@
             font-family: 'Orbitron', sans-serif; font-size: 50px;
             color: white; margin-bottom: 20px; letter-spacing: 15px;
             text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            text-align: center;
         }
 
         /* Header Style */
-        .header { position: absolute; top: 40px; text-align: center; z-index: 10; }
+        .header { position: absolute; top: 40px; text-align: center; z-index: 10; width: 100%; }
         .viru-logo { 
             font-family: 'Orbitron', sans-serif;
-            font-size: clamp(40px, 8vw, 70px); font-weight: 700; color: var(--neon-blue);
+            font-size: clamp(30px, 8vw, 70px); font-weight: 700; color: var(--neon-blue);
             letter-spacing: 10px; text-transform: uppercase;
             text-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
+            white-space: nowrap;
+        }
+
+        /* Mobile Fix - මම මෙතන පොඩි වෙනසක් කළා පේළියට එන්න */
+        @media screen and (max-width: 600px) {
+            .viru-logo {
+                letter-spacing: 4px; /* අකුරු අතර පරතරය අඩු කළා */
+                font-size: 32px; /* අකුරු පොඩ්ඩක් කුඩා කළා */
+            }
+            .overlay-logo {
+                letter-spacing: 5px;
+                font-size: 35px;
+            }
+            .news-container {
+                width: 90%;
+                padding: 40px 20px;
+            }
+            .footer {
+                letter-spacing: 2px;
+                font-size: 10px;
+            }
         }
 
         .live-tag {
@@ -81,7 +103,7 @@
         }
 
         .headline { 
-            font-size: clamp(28px, 5vw, 52px); color: #fff; font-weight: 800;
+            font-size: clamp(22px, 5vw, 52px); color: #fff; font-weight: 800;
             line-height: 1.5; transition: opacity 0.8s ease-in-out;
             text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
